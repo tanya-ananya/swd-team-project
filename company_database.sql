@@ -8,7 +8,6 @@ role ENUM('hr_admin', 'employee') );
 
 INSERT INTO login_credentials(username, password, role)
 VALUES ('hr_jameson', '123456', 'hr_admin'),
-('hr_grayson', '234567', 'hr_admin'),
 ('emp_avery', '345678', 'employee'),
 ('emp_aaron', '456789', 'employee'),
 ('emp_percy', '012345', 'employee'),
