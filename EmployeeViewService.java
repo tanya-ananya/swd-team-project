@@ -9,6 +9,8 @@ public class EmployeeViewService {
         System.out.println("Hire Date: " + emp.getHireDate());
         System.out.println("Job Title: " + emp.getJobTitle());
         System.out.println("Division: " + emp.getDivision());
-        System.out.println("Address: " + emp.getAddress() + ", " + emp.getCity() + ", " + emp.getState() + " " + emp.getZip());
-    }
+        System.out.println(
+                "Address: " + emp.getStreet() + ", " + emp.getCity() + ", " + emp.getState() + " " + emp.getZip());
+        }
 }
+
