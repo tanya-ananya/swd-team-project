@@ -22,10 +22,10 @@ public class HRAdminSearchService {
         switch (choice) {
             case 1:
                 System.out.print("Enter First Name: ");
-                String firstName = scanner.nextLine();
+                String fname = scanner.nextLine();
                 System.out.print("Enter Last Name: ");
-                String lastName = scanner.nextLine();
-                results = employeeDAO.searchByName(firstName, lastName);
+                String lname = scanner.nextLine();
+                results = employeeDAO.searchByName(fname, lname);
                 break;
             case 2:
                 System.out.print("Enter Date of Birth (YYYY-MM-DD): ");
@@ -39,9 +39,9 @@ public class HRAdminSearchService {
                 break;
             case 4:
                 System.out.print("Enter Employee ID: ");
-                String empId = scanner.nextLine();
-                int empIdInt = Integer.parseInt(empId);
-                results = employeeDAO.searchByEmpID(empIdInt);
+                String empid = scanner.nextLine();
+                int empidInt = Integer.parseInt(empid);
+                results = employeeDAO.searchByEmpID(empidInt);
                 break;
             default:
                 System.out.println("Invalid choice. Please select a valid option.");
