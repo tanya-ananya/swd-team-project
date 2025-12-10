@@ -2,7 +2,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class HRAdminSearchService {
-    public void initiateEmployeeSearch() {
+    public void initiateEmployeeSearch(Scanner scanner) {
         EmployeeDAO employeeDAO = new EmployeeDAO();
         List<Employee> results = null;
         
@@ -16,9 +16,9 @@ public class HRAdminSearchService {
         System.out.println("----------------------------------------");
         System.out.print("Enter your choice (1-4): ");
 
-        Scanner scanner = new Scanner(System.in);
         int choice = scanner.nextInt();
         scanner.nextLine();
+
         switch (choice) {
             case 1:
                 System.out.print("Enter First Name: ");
@@ -39,17 +39,23 @@ public class HRAdminSearchService {
                 break;
             case 4:
                 System.out.print("Enter Employee ID: ");
-                String empid = scanner.nextLine();
-                int empidInt = Integer.parseInt(empid);
+                if (!scanner.hasNextInt()) {
+                    System.out.println("Invalid Employee ID.");
+                    scanner.nextLine();
+                    return;
+                }
+                int empidInt = scanner.nextInt();
+                scanner.nextLine();
                 results = employeeDAO.searchByEmpID(empidInt);
                 break;
+
             default:
                 System.out.println("Invalid choice. Please select a valid option.");
                 return;
         }
         
         System.out.println("\n=== Search Results ===");
-        int selectedEmployee = -1;
+        int selectedEmployee;
 
         if (results == null || results.isEmpty()) { // no results
             System.out.println("No employees found matching the search criteria.");
