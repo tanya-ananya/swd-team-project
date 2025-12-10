@@ -88,6 +88,63 @@ public class EmployeeDAO implements IEmployeeDAO {
             System.out.println("ERROR " + e.getLocalizedMessage());
         }
     }
+    @Override
+public void addEmployee(Employee emp) {
+    String empSQL = "INSERT INTO employees (empid, fname, lname, hire_date, ssn, dob, gender, identified_race) "
+                  + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    String jobSQL = "INSERT INTO employee_job_titles (empid, job_title_id) VALUES (?, ?)";
+    String divSQL = "INSERT INTO employee_division (empid, div_ID) VALUES (?, ?)";
+    String addrSQL = "INSERT INTO address (empid, street, zip_code, phone_number, city_id, state_id) "
+                   + "VALUES (?, ?, ?, ?, ?, ?)";
+
+    try (Connection conn = DriverManager.getConnection(url, user, password)) {
+        conn.setAutoCommit(false); 
+
+        try (
+            PreparedStatement empStmt = conn.prepareStatement(empSQL);
+            PreparedStatement jobStmt = conn.prepareStatement(jobSQL);
+            PreparedStatement divStmt = conn.prepareStatement(divSQL);
+            PreparedStatement addrStmt = conn.prepareStatement(addrSQL)
+        ) {
+            empStmt.setInt(1, emp.getEmpid());
+            empStmt.setString(2, emp.getFname());
+            empStmt.setString(3, emp.getLname());
+            empStmt.setString(4, emp.getHireDate());
+            empStmt.setString(5, emp.getSSN());
+            empStmt.setString(6, emp.getDob());
+            empStmt.setString(7, emp.getGender());
+            empStmt.setString(8, emp.getIdentifiedRace());
+            empStmt.executeUpdate();
+
+            jobStmt.setInt(1, emp.getEmpid());
+            jobStmt.setInt(2, emp.getJobTitleId());
+            jobStmt.executeUpdate();
+
+            divStmt.setInt(1, emp.getEmpid());
+            divStmt.setInt(2, emp.getDivisionId());
+            divStmt.executeUpdate();
+
+            addrStmt.setInt(1, emp.getEmpid());
+            addrStmt.setString(2, emp.getAddress());
+            addrStmt.setString(3, emp.getZip());
+            addrStmt.setString(4, emp.getPhoneNumber());
+            addrStmt.setInt(5, emp.getCityId());
+            addrStmt.setInt(6, emp.getStateId());
+            addrStmt.executeUpdate();
+
+            conn.commit();  
+            System.out.println("Employee added successfully: " + emp.getFname() + " " + emp.getLname());
+
+        } catch (SQLException e) {
+            conn.rollback();  
+            System.out.println("ERROR adding employee: " + e.getMessage());
+        }
+
+    } catch (SQLException e) {
+        System.out.println("Database connection error: " + e.getMessage());
+    }
+}
+
     private void MapRowToEmployees(List<Employee> employees, String sqcmdl) {
         try (Connection myConn = DriverManager.getConnection(url, user, password);
                 java.sql.Statement myStmt = myConn.createStatement();
