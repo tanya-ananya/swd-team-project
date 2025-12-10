@@ -1,29 +1,30 @@
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class Authorization {
 
-    // Database connection details
-    private static final String URL = "jdbc:mysql://localhost:3306/company_z";
-    private static final String USER = "root"; // change if needed
-    private static final String PASSWORD = "pALOmo1130"; // your MySQL password
-
-    // Method to log in and return user role
+    // Returns "hr_admin", "employee", or null
     public static String login(String username, String password) {
-        String sql = "SELECT role FROM authorization WHERE username = ? AND password = ?";
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        String sql = "SELECT role FROM login_credentials WHERE username = ? AND password = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, username);
             stmt.setString(2, password);
+
             ResultSet rs = stmt.executeQuery();
 
             if (rs.next()) {
-                return rs.getString("role"); // HR_ADMIN or EMPLOYEE
-            } else {
-                return null; // no match
+                return rs.getString("role"); // 'hr_admin' or 'employee'
             }
 
+            return null;
+
         } catch (SQLException e) {
-            System.out.println("Database error: " + e.getMessage());
+            System.out.println("Database error during login: " + e.getMessage());
             return null;
         }
     }
