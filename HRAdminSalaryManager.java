@@ -17,20 +17,20 @@ class Employee {
     private int empid;
     private String fname;
     private String lname;
-    private double salary;
+    private double total_pay;
 
     public Employee(int empid, String fname, String lname, double salary) {
         this.empid = empid;
         this.fname = fname;
         this.lname = lname;
-        this.salary = salary;
+        this.total_pay = total_pay;
     }
 
     public int getEmpid() { return empid; }
     public String getFname() { return fname; }
     public String getLname() { return lname; }
-    public double getSalary() { return salary; }
-    public void setSalary(double salary) { this.salary = salary; }
+    public double getSalary() { return total_pay; }
+    public void setSalary(double salary) { this.total_pay = total_pay; }
 }
 
 // Service class for salary updates
