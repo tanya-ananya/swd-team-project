@@ -98,7 +98,7 @@ public class EmployeeDAO implements IEmployeeDAO {
                 emp.setFname(myRS.getString("fname"));
                 emp.setLname(myRS.getString("lname"));
                 emp.setHireDate(myRS.getDate("hire_date").toString());
-                emp.setSSN(myRS.getString("SSN"));
+                emp.setSSN(myRS.getString("ssn"));
                 emp.setAddress(myRS.getString("street"));
                 emp.setCity(myRS.getString("city_name"));
                 emp.setState(myRS.getString("state_name"));
