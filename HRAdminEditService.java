@@ -13,7 +13,6 @@ public class HRAdminEditService {
             System.out.println("2. Current Last Name: " + emp.getLname());
             System.out.println("3. Current Job Title and Division: " + emp.getJobTitle() + " in " + emp.getDivision());
             System.out.println("4. Current Address: " + emp.getAddress() + ", " + emp.getCity() + ", " + emp.getState() + " " + emp.getZip());
-            System.out.println("5. Current Phone Number: " + emp.getPhoneNumber());
             System.out.println("----------------------------------------");
             System.out.println("Enter the number of the field you want to edit (or 0 to exit): ");
 
@@ -71,13 +70,6 @@ public class HRAdminEditService {
                     String newZip = scanner.nextLine();
                     emp.setZip(newZip);
                     employeeDAO.updateEmployeeDetails(emp.getEmpid(), "address","zip_code", "'" + newZip + "'");
-                    break;
-
-                case 5: // Edit Phone Number
-                    System.out.print("Enter new Phone Number: ");
-                    String newPhoneNumber = scanner.nextLine();
-                    emp.setPhoneNumber(newPhoneNumber);
-                    employeeDAO.updateEmployeeDetails(emp.getEmpid(), "address","phone_number", "'" + newPhoneNumber + "'");
                     break;
 
                 case 0: // Exit
