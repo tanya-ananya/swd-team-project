@@ -11,7 +11,7 @@ public class EmployeeDAO implements IEmployeeDAO {
     String user = "root";
     String password = "password";
     String sqlTable = "SELECT e.empid, e.fname, e.lname, e.hire_date, e.ssn, e.dob, "
-            + "jt.job_title, d.division_name, a.street, a.zip_code, a.phone_number, ac.city_name, sc.state_name " + 
+            + "jt.job_title, d.division_name, a.street, a.zip_code, ac.city_name, sc.state_name " + 
             "FROM employees e " +
              "JOIN employee_job_titles ejt ON e.empid = ejt.empid " +
              "JOIN job_titles jt ON ejt.job_title_id = jt.job_title_id " +
@@ -106,7 +106,6 @@ public class EmployeeDAO implements IEmployeeDAO {
                 emp.setDob(myRS.getDate("dob").toString());
                 emp.setJobTitle(myRS.getString("job_title"));
                 emp.setDivision(myRS.getString("division_name"));
-                emp.setPhoneNumber(myRS.getString("phone_number"));
                 employees.add(emp);
             }
         } catch (SQLException e) {
