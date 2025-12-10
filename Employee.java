@@ -1,4 +1,3 @@
-
 public class Employee {
     private int empid;
     private String fname;
@@ -7,12 +6,34 @@ public class Employee {
     private String ssn;
     private String dob;
     private String jobTitle;
+    private int jobTitleId;
     private String address;
     private String city;
     private String state;
     private String division;
     private String zip;
+    private int cityId;
+    private int stateId;
+    private String street;
 
+    public String getStreet() {
+        return street;
+    }
+    public void setStreet(String street) {
+        this.street = street;
+    }
+    public int getCityId() {
+        return cityId;
+    }
+    public void setCityId(int cityId) {
+        this.cityId = cityId;
+    }
+    public int getStateId() {
+        return stateId;
+    }
+    public void setStateId(int stateId) {
+        this.stateId = stateId;
+    }
     public String getZip() {
         return zip;
     }
@@ -58,8 +79,15 @@ public class Employee {
     public String getJobTitle() {
         return jobTitle;
     }
+
     public void setJobTitle(String jobTitle) {
         this.jobTitle = jobTitle;
+    }
+    public int getJobTitleId() {
+    return jobTitleId;
+    }
+    public void setJobTitleId(int jobTitleId) {
+        this.jobTitleId = jobTitleId;
     }
     public String getAddress() {
         return address;
