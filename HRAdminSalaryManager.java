@@ -30,7 +30,7 @@ class Employee {
     public String getFname() { return fname; }
     public String getLname() { return lname; }
     public double getSalary() { return total_pay; }
-    public void setSalary(double salary) { this.total_pay = total_pay; }
+    public void setSalary(double total_pay) { this.total_pay = total_pay; }
 }
 
 // Service class for salary updates
