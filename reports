@@ -4,35 +4,40 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class reports {
+public class Reports {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/company_z";
+    private static final String URL = "jdbc:mysql://localhost:3306/company_database";
     private static final String USER = "root";
     private static final String PASSWORD = "pALOmo1130";
 
-    public void generateDivisionReport(int month, int year) {
+    public void generateDivisionReport(int month, int year, int divisionId) {
         String sql = """
-                    SELECT d.Name AS Division,
-                        SUM(p.earnings - p.fed_tax - p.state_tax - p.fed_med - p.fed_SS
-                            - p.retire_401k - p.health_care) AS TotalPay
-                    FROM payroll p
-                    JOIN employee_division ed ON p.empid = ed.empid
-                    JOIN division d ON ed.div_ID = d.ID
-                    WHERE MONTH(p.pay_date) = ? AND YEAR(p.pay_date) = ?
-                    GROUP BY d.Name;
-                """;
+            SELECT d.division_name AS Division,
+            SUM(p.total_pay) AS TotalPay
+            FROM payments p
+            JOIN employee_division ed ON p.empid = ed.empid
+            JOIN division d ON ed.div_ID = d.ID
+            WHERE MONTH(p.payment_date) = ?
+            AND YEAR(p.payment_date) = ?
+            AND d.ID = ?
+            GROUP BY d.division_name;
+        """;
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, month);
             stmt.setInt(2, year);
+            stmt.setInt(3, divisionId);
 
             ResultSet rs = stmt.executeQuery();
-            System.out.println("Total Pay by Division for " + month + "/" + year + ":");
+            System.out.println("\nTotal Pay by Division for " + divisionId + month + "/" + year + ":");
             System.out.println("----------------------------------------");
+
             while (rs.next()) {
-                System.out.printf("%-20s $%.2f%n", rs.getString("Division"), rs.getDouble("TotalPay"));
+                System.out.printf("%-20s $%.2f%n",
+                        rs.getString("Division"),
+                        rs.getDouble("TotalPay"));
             }
 
         } catch (SQLException e) {
@@ -40,35 +45,36 @@ public class reports {
         }
     }
 
+
     public void generateJobTitleReport(int month, int year, int jobTitleId) {
         String sql = """
-                SELECT jt.job_title as job_titles,
-                    SUM(p.earnings - p.fed_tax - p.state_tax - p.fed_med - p.fed_SS
-                        - p.retire_401k - p.health_care) AS TotalPay
-                FROM payroll p
-                JOIN employee_job_titles ejt ON p.empid = ejt.empid
-                JOIN job_titles jt ON ejt.job_title_id = jt.job_title_id
-                WHERE MONTH(p.pay_date) = ? 
-                AND YEAR(p.pay_date) = ?
-                AND jt.job_title_id = ?
-                GROUP BY jt.job_title;
-            """;
+            SELECT jt.job_title AS JobTitle,
+                   SUM(p.total_pay) AS TotalPay
+            FROM payments p
+            JOIN employee_job_titles ejt ON p.empid = ejt.empid
+            JOIN job_titles jt ON ejt.job_title_id = jt.job_title_id
+            WHERE MONTH(p.payment_date) = ?
+              AND YEAR(p.payment_date) = ?
+              AND jt.job_title_id = ?
+            GROUP BY jt.job_title;
+        """;
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, month);
             stmt.setInt(2, year);
             stmt.setInt(3, jobTitleId);
 
             ResultSet rs = stmt.executeQuery();
-            System.out.println("Total Pay for Job Title " + jobTitleId + 
-                            " for " + month + "/" + year + ":");
+            System.out.println("\nTotal Pay for Job Title ID " + jobTitleId +
+                               " for " + month + "/" + year + ":");
             System.out.println("----------------------------------------");
+
             while (rs.next()) {
                 System.out.printf("%-25s $%.2f%n",
-                    rs.getString("JobTitle"),
-                    rs.getDouble("TotalPay"));
+                        rs.getString("JobTitle"),
+                        rs.getDouble("TotalPay"));
             }
 
         } catch (SQLException e) {
@@ -78,28 +84,28 @@ public class reports {
 
     public void generateHireDateReport(String startDate, String endDate) {
         String sql = """
-                    SELECT empid, Fname, Lname, HireDate, Salary
-                    FROM employees
-                    WHERE HireDate BETWEEN ? AND ?
-                    ORDER BY HireDate ASC;
-                """;
+            SELECT empid, fname, lname, hire_date
+            FROM employees
+            WHERE hire_date BETWEEN ? AND ?
+            ORDER BY hire_date ASC;
+        """;
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, startDate);
             stmt.setString(2, endDate);
 
             ResultSet rs = stmt.executeQuery();
-            System.out.println("Employees hired between " + startDate + " and " + endDate + ":");
+            System.out.println("\nEmployees hired between " + startDate + " and " + endDate + ":");
             System.out.println("--------------------------------------------------------");
+
             while (rs.next()) {
-                System.out.printf("%d | %s %s | %s | $%.2f%n",
+                System.out.printf("%d | %s %s | %s%n",
                         rs.getInt("empid"),
-                        rs.getString("Fname"),
-                        rs.getString("Lname"),
-                        rs.getDate("HireDate"),
-                        rs.getDouble("Salary"));
+                        rs.getString("fname"),
+                        rs.getString("lname"),
+                        rs.getDate("hire_date"));
             }
 
         } catch (SQLException e) {
@@ -109,40 +115,29 @@ public class reports {
 
     public void generatePayHistory(int empid) {
         String sql = """
-                SELECT pay_date, earnings, fed_tax, fed_med, fed_SS,
-                    state_tax, retire_401k, health_care
-                FROM payroll
-                WHERE empid = ?
-                ORDER BY pay_date DESC;
-            """;
+            SELECT payment_date, total_pay
+            FROM payments
+            WHERE empid = ?
+            ORDER BY payment_date DESC;
+        """;
 
         try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, empid);
 
             ResultSet rs = stmt.executeQuery();
-            System.out.println("Pay Statement History for Employee ID: " + empid);
+            System.out.println("\nPay Statement History for Employee ID: " + empid);
             System.out.println("------------------------------------------------------");
 
             while (rs.next()) {
-                System.out.printf(
-                    "Date: %s | Earnings: $%.2f | Federal Tax: $%.2f | Medicare: $%.2f | SS: $%.2f | State Tax: $%.2f | 401k: $%.2f | Health: $%.2f%n",
-                    rs.getDate("pay_date"),
-                    rs.getDouble("earnings"),
-                    rs.getDouble("fed_tax"),
-                    rs.getDouble("fed_med"),
-                    rs.getDouble("fed_SS"),
-                    rs.getDouble("state_tax"),
-                    rs.getDouble("retire_401k"),
-                    rs.getDouble("health_care")
-                );
+                System.out.printf("Date: %s | Pay: $%.2f%n",
+                        rs.getDate("payment_date"),
+                        rs.getDouble("total_pay"));
             }
 
         } catch (SQLException e) {
             System.out.println("Error generating pay history report: " + e.getMessage());
         }
     }
-
-
 }
