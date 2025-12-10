@@ -1,158 +1,132 @@
 import java.sql.*;
 import java.util.Scanner;
 
-// Class to manage database connection
-class DatabaseConnection {
-    private static final String URL = "jdbc:mysql://localhost:3306/company_database";
-    private static final String USER = "root";
-    private static final String PASSWORD = "password"; // change to your password
-
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
-    }
-}
-
-// Employee class
-class Employee {
-    private int empid;
-    private String fname;
-    private String lname;
-    private double salary;
-
-    public Employee(int empid, String fname, String lname, double salary) {
-        this.empid = empid;
-        this.fname = fname;
-        this.lname = lname;
-        this.salary = salary;
-    }
-
-    public int getEmpid() { return empid; }
-    public String getFname() { return fname; }
-    public String getLname() { return lname; }
-    public double getSalary() { return salary; }
-    public void setSalary(double salary) { this.salary = salary; }
-}
-
-// Service class for salary updates
-class SalaryUpdateService {
-
-    // Update a single employee by ID
-    public void increaseSalaryByEmpID(int empID, double percentIncrease) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            // Check if employee exists
-            String checkSql = "SELECT empid, fname, lname, total_pay FROM payments WHERE empid = ?";
-            PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-            checkStmt.setInt(1, empID);
-            ResultSet rs = checkStmt.executeQuery();
-
-            if (!rs.next()) {
-                System.out.println("ERROR: Employee ID " + empID + " does not exist.");
-                return;
-            }
-
-            double currentSalary = rs.getDouble("total_pay");
-            String fname = rs.getString("fname");
-            String lname = rs.getString("lname");
-
-            double updatedSalary = currentSalary * (1 + percentIncrease / 100);
-
-            // Update salary
-            String updateSql = "UPDATE payments SET total_pay = ? WHERE empid = ?";
-            PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-            updateStmt.setDouble(1, updatedSalary);
-            updateStmt.setInt(2, empID);
-            int rows = updateStmt.executeUpdate();
-
-            if (rows > 0) {
-                System.out.printf("Employee %s %s (ID %d) salary updated: $%.2f -> $%.2f%n",
-                        fname, lname, empID, currentSalary, updatedSalary);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Database error: " + e.getMessage());
-        }
-    }
-
-    // Update all employees below a max salary
-    public void increaseSalaryForRange(double maxSalary, double percentIncrease) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            String selectSql = "SELECT empid, fname, lname, total_pay FROM payments WHERE total_pay < ?";
-            PreparedStatement selectStmt = conn.prepareStatement(selectSql);
-            selectStmt.setDouble(1, maxSalary);
-            ResultSet rs = selectStmt.executeQuery();
-
-            int updatedCount = 0;
-            while (rs.next()) {
-                int empID = rs.getInt("empid");
-                String fname = rs.getString("fname");
-                String lname = rs.getString("lname");
-                double currentSalary = rs.getDouble("total_pay");
-                double updatedSalary = currentSalary * (1 + percentIncrease / 100);
-
-                String updateSql = "UPDATE payments SET total_pay = ? WHERE empid = ?";
-                PreparedStatement updateStmt = conn.prepareStatement(updateSql);
-                updateStmt.setDouble(1, updatedSalary);
-                updateStmt.setInt(2, empID);
-                updateStmt.executeUpdate();
-
-                System.out.printf("Updated %s %s (ID %d): $%.2f -> $%.2f%n",
-                        fname, lname, empID, currentSalary, updatedSalary);
-                updatedCount++;
-            }
-
-            System.out.printf("%d employee(s) earning less than $%.2f have been updated with a %.2f%% increase.%n",
-                    updatedCount, maxSalary, percentIncrease);
-
-        } catch (SQLException e) {
-            System.out.println("Database error: " + e.getMessage());
-        }
-    }
-}
-
-// Main class with test cases
 public class HRAdminSalaryManager {
+
     public static void main(String[] args) {
-        SalaryUpdateService salaryService = new SalaryUpdateService();
+
+        final String URL = "jdbc:mysql://localhost:3306/company_database";
+        final String USER = "root";
+        final String PASSWORD = "password";
+
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("=== HR ADMIN SALARY UPDATE ===");
-        System.out.println("Choose an option:");
+        System.out.println("=== HR ADMIN — SALARY UPDATE ===");
+        System.out.println("----------------------------------------");
         System.out.println("1. Update salary for a single employee by ID");
-        System.out.println("2. Update salary for all employees below a max salary");
-        int choice = scanner.nextInt();
-        scanner.nextLine(); // consume newline
+        System.out.println("2. Update salary for all employees below a maximum salary");
+        System.out.println("----------------------------------------");
+        System.out.print("Enter your choice (1-2): ");
 
-        switch (choice) {
-            case 1:
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            if (choice == 1) {
                 System.out.print("Enter Employee ID: ");
                 int empID = scanner.nextInt();
-                System.out.print("Enter percent increase (e.g., 3.2): ");
+                System.out.print("Enter percent increase: ");
                 double percent = scanner.nextDouble();
-                salaryService.increaseSalaryByEmpID(empID, percent);
-                break;
 
-            case 2:
-                System.out.print("Enter maximum salary limit: ");
+                String checkSql = "SELECT empid, fname, lname, total_pay FROM payments WHERE empid = ?";
+                PreparedStatement checkStmt = conn.prepareStatement(checkSql);
+                checkStmt.setInt(1, empID);
+                ResultSet rs = checkStmt.executeQuery();
+
+                if (!rs.next()) {
+                    System.out.println("ERROR: Employee ID " + empID + " does not exist.");
+                } else {
+                    String fname = rs.getString("fname");
+                    String lname = rs.getString("lname");
+                    double currentSalary = rs.getDouble("total_pay");
+                    double updatedSalary = currentSalary * (1 + percent / 100);
+
+                    String updateSql = "UPDATE payments SET total_pay = ? WHERE empid = ?";
+                    PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                    updateStmt.setDouble(1, updatedSalary);
+                    updateStmt.setInt(2, empID);
+                    updateStmt.executeUpdate();
+
+                    System.out.printf("Updated %s %s (ID %d): $%.2f -> $%.2f%n",
+                            fname, lname, empID, currentSalary, updatedSalary);
+                }
+            }
+
+            else if (choice == 2) {
+                System.out.print("Enter maximum salary: ");
                 double maxSalary = scanner.nextDouble();
-                System.out.print("Enter percent increase (e.g., 3.2): ");
-                double rangePercent = scanner.nextDouble();
-                salaryService.increaseSalaryForRange(maxSalary, rangePercent);
-                break;
+                System.out.print("Enter percent increase: ");
+                double percent = scanner.nextDouble();
 
-            default:
+                String selectSql = "SELECT empid, fname, lname, total_pay FROM payments WHERE total_pay < ?";
+                PreparedStatement selectStmt = conn.prepareStatement(selectSql);
+                selectStmt.setDouble(1, maxSalary);
+                ResultSet rs = selectStmt.executeQuery();
+
+                int updatedCount = 0;
+                while (rs.next()) {
+                    int empID = rs.getInt("empid");
+                    String fname = rs.getString("fname");
+                    String lname = rs.getString("lname");
+                    double currentSalary = rs.getDouble("total_pay");
+                    double updatedSalary = currentSalary * (1 + percent / 100);
+
+                    String updateSql = "UPDATE payments SET total_pay = ? WHERE empid = ?";
+                    PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                    updateStmt.setDouble(1, updatedSalary);
+                    updateStmt.setInt(2, empID);
+                    updateStmt.executeUpdate();
+
+                    System.out.printf("Updated %s %s (ID %d): $%.2f -> $%.2f%n",
+                            fname, lname, empID, currentSalary, updatedSalary);
+                    updatedCount++;
+                }
+
+                System.out.printf("%d employee(s) updated under $%.2f with %.2f%% increase.%n",
+                        updatedCount, maxSalary, percent);
+            }
+
+            else {
                 System.out.println("Invalid choice.");
+            }
+
+
+
+            System.out.println("\n=== TEST CASES ===");
+
+            System.out.println("\nTest 1: Update all employees under 105000 by 3.2%");
+            PreparedStatement stmt1 = conn.prepareStatement(
+                    "SELECT empid, fname, lname, total_pay FROM payments WHERE total_pay < 105000");
+            ResultSet rs1 = stmt1.executeQuery();
+            while (rs1.next()) {
+                double current = rs1.getDouble("total_pay");
+                double updated = current * 1.032;
+                PreparedStatement u = conn.prepareStatement(
+                        "UPDATE payments SET total_pay = ? WHERE empid = ?");
+                u.setDouble(1, updated);
+                u.setInt(2, rs1.getInt("empid"));
+                u.executeUpdate();
+                System.out.println("Test 1 Updated ID " + rs1.getInt("empid"));
+            }
+
+            System.out.println("\nTest 2: Update salary for employee ID 101 by 5%");
+            PreparedStatement stmt2 = conn.prepareStatement(
+                    "UPDATE payments SET total_pay = total_pay * 1.05 WHERE empid = 101");
+            stmt2.executeUpdate();
+            System.out.println("Test 2 Completed!");
+
+            System.out.println("\nTest 3: Update non-existent Employee ID 999");
+            PreparedStatement stmt3 = conn.prepareStatement(
+                    "UPDATE payments SET total_pay = total_pay * 1.05 WHERE empid = 999");
+            int rows = stmt3.executeUpdate();
+            if (rows == 0) {
+                System.out.println("Test 3: Employee ID 999 not found.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Database Error: " + e.getMessage());
         }
-
-        // --- Test Cases ---
-        System.out.println("\n=== TEST CASES ===");
-        System.out.println("Test 1: Increase salary by 3.2% for all employees below $105,000");
-        salaryService.increaseSalaryForRange(105000, 3.2);
-
-        System.out.println("\nTest 2: Update salary for employee ID 101 by 5%");
-        salaryService.increaseSalaryByEmpID(101, 5);
-
-        System.out.println("\nTest 3: Attempt update for non-existent Employee ID 999");
-        salaryService.increaseSalaryByEmpID(999, 5);
 
         scanner.close();
     }
