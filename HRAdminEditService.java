@@ -2,6 +2,8 @@ import java.util.Scanner;
 
 public class HRAdminEditService {
     public void editEmployeeDetails(Scanner scanner, EmployeeDAO employeeDAO, Employee emp) {
+        
+
 
         String key;
         boolean editing = true;
@@ -38,8 +40,8 @@ public class HRAdminEditService {
                     System.out.print("Enter new Job Title: ");
                     String newJobTitle = scanner.nextLine();
                     emp.setJobTitle(newJobTitle);
-                    key = "(SELECT jt.job_title_id FROM job_titles jt WHERE jt.job_title = '"+ newJobTitle +"')";
-                    employeeDAO.updateEmployeeDetails(emp.getEmpid(), "employee_job_titles ejt", "ejt.job_title_id", key);
+                    key = "(SELECT job_title_id FROM job_titles WHERE job_title = '"+ newJobTitle +"')";
+                    employeeDAO.updateEmployeeDetails(emp.getEmpid(), "employee_job_titles", "job_title_id", key);
 
                     System.out.print("Enter new Division: ");
                     String newDivision = scanner.nextLine();
@@ -57,14 +59,14 @@ public class HRAdminEditService {
                     System.out.print("Enter new City: ");
                     String newCity = scanner.nextLine();
                     emp.setCity(newCity);
-                    key = "(SELECT c.city_ID FROM city c WHERE c.city_name = '"+ newCity +"')";
-                    employeeDAO.updateEmployeeDetails(emp.getEmpid(), "address a", "a.city_id", key);
+                    key = "(SELECT city_ID FROM city WHERE city_name = '"+ newCity +"')";
+                    employeeDAO.updateEmployeeDetails(emp.getEmpid(), "address ", "city_id", key);
                     
                     System.out.print("Enter new State: ");
                     String newState = scanner.nextLine();
                     emp.setState(newState);
-                    key = "(SELECT s.state_ID FROM state s WHERE s.state_name = '"+ newState +"')";
-                    employeeDAO.updateEmployeeDetails(emp.getEmpid(), "address a", "a.state_id", key);
+                    key = "(SELECT state_ID FROM state WHERE state_name = '"+ newState +"')";
+                    employeeDAO.updateEmployeeDetails(emp.getEmpid(), "address", "state_id", key);
 
                     System.out.print("Enter new Zip: ");
                     String newZip = scanner.nextLine();
@@ -85,7 +87,6 @@ public class HRAdminEditService {
             if (!continueEdit.equalsIgnoreCase("Y")) {
                 editing = false;
                 System.out.println("Exiting edit mode.");
-                scanner.close();
             }
         }
     }
