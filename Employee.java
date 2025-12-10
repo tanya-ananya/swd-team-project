@@ -11,7 +11,6 @@ public class Employee {
     private String city;
     private String state;
     private String division;
-    private String phoneNumber;
     private String zip;
 
     public String getZip() {
@@ -85,13 +84,5 @@ public class Employee {
     }
     public void setDivision(String division) {
         this.division = division;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
     }
 }
