@@ -14,7 +14,7 @@ public class HRAdminEditService {
             System.out.println("1. Current First Name: " + emp.getFname());
             System.out.println("2. Current Last Name: " + emp.getLname());
             System.out.println("3. Current Job Title and Division: " + emp.getJobTitle() + " in " + emp.getDivision());
-            System.out.println("4. Current Address: " + emp.getAddress() + ", " + emp.getCity() + ", " + emp.getState() + " " + emp.getZip());
+            System.out.println("4. Current Address: " + emp.getStreet() + ", " + emp.getCity() + ", " + emp.getState() + " " + emp.getZip());
             System.out.println("----------------------------------------");
             System.out.println("Enter the number of the field you want to edit (or 0 to exit): ");
 
